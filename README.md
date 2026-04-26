@@ -1,3 +1,4 @@
 # Luau Obfuscator
 **In-Development**
-You can use [here](https://tienxida112-blip.github.io/Obfuscator/)
+# Early Access
+You can early access for free [here](https://tienxida112-blip.github.io/Obfuscator/)
