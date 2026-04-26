@@ -94,6 +94,261 @@
         .btn-obf:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-2px); }
         .btn-setting { background: #1a1a1a; color: var(--primary); width: 60px; flex: none; border: 1px solid var(--primary); }
         .btn-copy { background: #252525; color: #eee; }
+        .btn-download { background: #1a3a2a; color: var(--primary); border: 1px solid var(--primary); }
+        .btn-clear { background: #331111; color: #ff4444; }
+        #status { text-align: center; margin-top: 15px; font-size: 11px; font-weight: bold; height: 15px; }
+
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 950px; margin-top: 30px; }
+        .feat-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; transition: 0.3s; }
+        .feat-card:hover { border-color: var(--primary); background: #161616; }
+        .feat-card h3 { color: var(--primary); font-size: 12px; margin: 0 0 10px 0; letter-spacing: 1px; }
+        .feat-card p { color: #888; font-size: 11px; line-height: 1.6; margin: 0; }
+
+        .faq-section { width: 950px; margin-top: 40px; background: #111; border-radius: 8px; border: 1px solid #222; padding: 30px; }
+        .faq-section h2 { border: none; text-align: left; margin-bottom: 20px; font-size: 14px; }
+        .faq-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        .faq-item:last-child { border: none; margin-bottom: 0; }
+        .faq-item h4 { color: #eee; margin: 0 0 8px 0; font-size: 13px; }
+        .faq-item p { color: #666; font-size: 12px; margin: 0; }
+
+        footer { margin-top: 50px; color: #444; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 100; backdrop-filter: blur(5px); }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; background: #1a1a1a; border: 1px solid var(--primary); border-radius: 10px; padding: 30px; z-index: 101; display: none; }
+        .tag-box { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; background: #080808; border: 1px solid #333; padding: 12px; margin: 15px 0; border-radius: 5px; }
+        .tag { background: rgba(0, 255, 136, 0.1); color: var(--primary); padding: 5px 12px; border-radius: 4px; font-size: 11px; border: 1px solid var(--primary); cursor: pointer; }
+        .input-group { display: flex; gap: 8px; }
+        .input-group input { flex: 1; background: #000; border: 1px solid #333; padding: 12px; color: var(--primary); outline: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<a href="https://github.com/tienxida112-blip" target="_blank" class="profile">
+    <img src="https://avatars.githubusercontent.com/u/246861080?s=96&v=4" alt="tienxida112-blip">
+    <h1>tienxida112-blip</h1>
+    <span>Nevermind.</span>
+</a>
+
+<div id="overlay"></div>
+<div class="modal" id="setting-modal">
+    <h3 style="color:#fff; text-align:center; font-size:14px; margin:0 0 20px 0;">Blocked Executor</h3>
+    <div class="input-group">
+        <input type="text" id="exec-input" placeholder="Executor name..." oninput="toggleAddBtn()">
+        <button id="add-btn" style="display:none; background:var(--primary); color:#000; width:70px;" onclick="addTag()">ADD</button>
+    </div>
+    <div class="tag-box" id="tag-container"></div>
+    <button style="width:100%; background:#222; color:#fff;" onclick="closeSettings()">Save</button>
+</div>
+
+<div class="window" id="main-window">
+    <h2>LuaU Obfuscator</h2>
+    <div class="editor-wrapper" id="master-scroller">
+        <div class="gutter">
+            <div class="line-numbers" id="line-num-gutter">1</div>
+        </div>
+        <div class="editor-area">
+            <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
+            <textarea id="editor" spellcheck="false" placeholder="Your script here.." oninput="updateView()"></textarea>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button class="btn-obf" onclick="doObfuscate()">Obfuscate Now</button>
+        <button class="btn-setting" onclick="openSettings()">⚙️</button>
+        <button class="btn-copy" onclick="doCopy()">Copy</button>
+        <button class="btn-download" onclick="doDownload()">Download</button> <button class="btn-clear" onclick="doReset()">Clear</button>
+    </div>
+    <div id="status">Waiting for response</div>
+</div>
+
+<div class="features">
+    <div class="feat-card">
+        <h3>CODE SECURITY</h3>
+        <p>VM protection. Makes your Luau scripts unreadable to decompilers and harder for reverse-engineer.</p>
+    </div>
+    <div class="feat-card">
+        <h3>ANTI-TAMPER</h3>
+        <p>Integrated self-check mechanisms. Script breaks automatically if code is modified.</p>
+    </div>
+    <div class="feat-card">
+        <h3>BLOCK EXECUTOR</h3>
+        <p>Block specific Roblox executors from running your script instantly via settings.</p>
+    </div>
+</div>
+
+<div class="faq-section">
+    <h2>FREQUENTLY ASKED QUESTIONS</h2>
+    <div class="faq-item">
+        <h4>Is this safe and protect my source code?</h4>
+        <p>Yes, it will change your source code into a large code look like "What?", and safe to use with good executor</p>
+    </div>
+    <div class="faq-item">
+        <h4>Will it slow down and crash my script?</h4>
+        <p>Yes, just slow a bit but it doesn't crash if your script doesn't bug</p>
+    </div>
+</div>
+
+<footer>&copy; Created in 26/4/2026</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+
+<script>
+    const editor = document.getElementById('editor');
+    const highlightContent = document.getElementById('highlight-content');
+    const lineNumGutter = document.getElementById('line-num-gutter');
+    const status = document.getElementById('status');
+    const mainWindow = document.getElementById('main-window');
+    const settingModal = document.getElementById('setting-modal');
+    const overlay = document.getElementById('overlay');
+    const execInput = document.getElementById('exec-input');
+    const tagContainer = document.getElementById('tag-container');
+
+    let blockedExecutors = [];
+
+    function openSettings() { mainWindow.classList.add('blur'); overlay.style.display = 'block'; settingModal.style.display = 'block'; }
+    function closeSettings() { mainWindow.classList.remove('blur'); overlay.style.display = 'none'; settingModal.style.display = 'none'; }
+    function toggleAddBtn() { document.getElementById('add-btn').style.display = execInput.value ? 'block' : 'none'; }
+    function addTag() { if (execInput.value && !blockedExecutors.includes(execInput.value)) { blockedExecutors.push(execInput.value); renderTags(); execInput.value = ''; toggleAddBtn(); } }
+    function renderTags() { tagContainer.innerHTML = blockedExecutors.map(t => `<div class="tag" onclick="blockedExecutors=blockedExecutors.filter(x=>x!=='${t}');renderTags()">${t} ×</div>`).join(''); }
+    function setStatus(text, dur = 2000) { status.innerText = text; if(dur>0) setTimeout(()=>status.innerText="READY", dur); }
+
+    function updateView() {
+        const text = editor.value;
+        highlightContent.textContent = text + (text.endsWith('\n') ? ' ' : ''); 
+        Prism.highlightElement(highlightContent);
+        
+        const lines = text.split('\n');
+        const lineCount = lines.length;
+        lineNumGutter.innerHTML = Array.from({length: lineCount}, (_, i) => i + 1).join('<br>');
+
+        editor.style.height = '0px'; 
+        const scrollHeight = editor.scrollHeight;
+        editor.style.height = scrollHeight + 'px';
+        document.getElementById('highlight-layer').style.height = scrollHeight + 'px';
+    }
+
+    editor.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(this.selectionEnd);
+            this.selectionStart = this.selectionEnd = start + 1;
+            updateView();
+        }
+    });
+
+    function doObfuscate() {
+        if (!editor.value) return;
+        setStatus("Obfuscating...");
+        setTimeout(() => {
+            const sourceCode = editor.value;
+            const key = Math.floor(Math.random() * 255) + 1;
+            const bytes = sourceCode.split('').map(char => char.charCodeAt(0) ^ key);
+            const blockListStr = blockedExecutors.map(ex => `"${ex}"`).join(',');
+
+            const template = `-- Obfuscated by tienxida112-blip
+local _ = (function(k, d, b)
+    local identify = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+    for _, name in pairs(b) do
+        if string.find(string.lower(identify), string.lower(name)) then
+            return warn("This executor ("..identify..") is blocked from running this script.")
+        end
+    end
+    local r = ""
+    for i = 1, #d do
+        r = r .. string.char(bit32.bxor(d[i], k))
+    end
+    local s, err = loadstring(r)
+    if s then return s() else warn("Error during execution: " .. err) end
+end)(${key}, {${bytes.join(',')}}, {${blockListStr}})`;
+
+            editor.value = template;
+            updateView(); 
+            setStatus("Obfuscated!");
+        }, 1200);
+    }
+
+    function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("Copied!"); }
+    function doReset() { editor.value = ""; updateView(); setStatus("Cleared!"); }
+
+    function doDownload() {
+        if (!editor.value) return;
+        const blob = new Blob([editor.value], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'obfuscated_script.lua';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus("Downloaded!");
+    }
+
+    updateView();
+</script>
+</body>
+</html>
+            user-select: none;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+        .line-numbers { 
+            color: #333; 
+            font-size: 13px; 
+            line-height: 1.5; 
+            padding-right: 10px;
+            font-family: var(--font);
+        }
+
+        .editor-area {
+            position: relative;
+            flex-grow: 1;
+            min-width: fit-content;
+        }
+
+        #editor, #highlight-layer {
+            margin: 0;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-family: var(--font);
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre;
+            tab-size: 4;
+            box-sizing: border-box;
+            display: block;
+            min-width: 100%;
+        }
+
+        #editor {
+            position: relative;
+            background: transparent;
+            color: transparent;
+            caret-color: var(--primary);
+            z-index: 2;
+            resize: none;
+            overflow: hidden; 
+            width: 100%;
+        }
+
+        #highlight-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+            color: #888;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 14px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: var(--font); font-size: 12px; text-transform: uppercase; }
+        .btn-obf { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2); }
+        .btn-obf:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-2px); }
+        .btn-setting { background: #1a1a1a; color: var(--primary); width: 60px; flex: none; border: 1px solid var(--primary); }
+        .btn-copy { background: #252525; color: #eee; }
         .btn-download { background: #1a3a2a; color: var(--primary); border: 1px solid var(--primary); } /* Nút download mới */
         .btn-clear { background: #331111; color: #ff4444; }
         #status { text-align: center; margin-top: 15px; font-size: 11px; font-weight: bold; height: 15px; }
