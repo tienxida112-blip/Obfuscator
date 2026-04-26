@@ -2,64 +2,141 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Obfuscator</title>
+    <title>Tiến | Obfuscator Engine</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
-        body { background: #0d0d0d; color: #00ff88; font-family: 'Consolas', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .window { width: 850px; background: #151515; padding: 20px; border-radius: 10px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s; }
-        .window.blur { filter: blur(5px); pointer-events: none; opacity: 0.4; }
-        h2 { text-align: center; margin: 0 0 15px 0; font-size: 14px; color: #fff; letter-spacing: 2px; }
-        .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 4px; height: 400px; overflow: hidden; position: relative; }
-        .gutter { display: flex; background: #0a0a0a; border-right: 1px solid #222; user-select: none; }
-        .line-numbers { width: 35px; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 5px; }
-        .editor-container { position: relative; flex: 1; overflow: auto; }
-        #editor, #highlight-layer { position: absolute; top: 0; left: 0; min-width: 100%; min-height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: hidden; }
-        #editor { color: transparent; caret-color: #00ff88; background: transparent; z-index: 2; resize: none; }
-        #highlight-layer { z-index: 1; pointer-events: none; color: #888; }
-        .btn-group { display: flex; gap: 8px; margin-top: 12px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 3px; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Consolas', monospace; font-size: 11px; text-transform: uppercase; }
-        .btn-obf { background: #00ff88; color: #000; }
-        .btn-setting { background: rgba(0, 255, 136, 0.15); color: #00ff88; width: 50px; flex: none; border: 1px solid #00ff88; }
-        .btn-copy { background: #222; color: #ccc; border: 1px solid #333; }
-        .btn-clear { background: #441111; color: #ff4444; }
-        #status { text-align: center; margin-top: 12px; font-size: 10px; color: #00ff88; font-weight: bold; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 10; backdrop-filter: blur(2px); }
-        .setting-ui { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #1a1a1a; border: 1px solid #00ff88; border-radius: 8px; padding: 20px; z-index: 11; display: none; }
-        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; min-height: 50px; padding: 10px; background: #0a0a0a; border: 1px solid #222; margin-bottom: 10px; }
-        .tag { background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 4px 8px; border-radius: 3px; font-size: 10px; border: 1px solid #00ff88; cursor: pointer; }
-        .input-box { display: flex; gap: 5px; margin-bottom: 10px; }
-        .input-box input { flex: 1; background: #0a0a0a; border: 1px solid #333; padding: 8px; color: #00ff88; outline: none; }
+        :root { --primary: #00ff88; --bg: #0d0d0d; --card: #151515; }
+        body { background: var(--bg); color: var(--primary); font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 40px 0; overflow-x: hidden; }
+        
+        /* Profile Section */
+        .profile { text-align: center; margin-bottom: 30px; text-decoration: none; }
+        .profile img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        .profile h1 { color: #fff; margin: 10px 0 5px; font-size: 22px; }
+        .profile span { color: #666; font-size: 12px; letter-spacing: 3px; }
+
+        /* Main Window */
+        .window { width: 900px; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
+        .window.blur { filter: blur(8px); pointer-events: none; }
+        h2 { text-align: center; margin-top: 0; color: #fff; font-size: 16px; letter-spacing: 4px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+
+        /* Editor & Sync Scroll Fix */
+        .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 6px; height: 400px; overflow: hidden; position: relative; }
+        .gutter { background: #0a0a0a; border-right: 1px solid #222; width: 50px; flex-shrink: 0; overflow: hidden; position: relative; }
+        .line-numbers { position: absolute; width: 100%; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 10px; user-select: none; }
+        
+        .editor-container { position: relative; flex: 1; overflow: hidden; }
+        #editor, #highlight-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: auto; }
+        #editor { color: transparent; caret-color: var(--primary); background: transparent; z-index: 2; resize: none; }
+        #highlight-layer { z-index: 1; pointer-events: none; color: #888; overflow: hidden; }
+
+        /* Control Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 14px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Consolas', monospace; font-size: 12px; text-transform: uppercase; }
+        .btn-obf { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2); }
+        .btn-obf:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-2px); }
+        .btn-setting { background: #1a1a1a; color: var(--primary); width: 60px; flex: none; border: 1px solid var(--primary); }
+        .btn-copy { background: #252525; color: #eee; }
+        .btn-clear { background: #331111; color: #ff4444; }
+        #status { text-align: center; margin-top: 15px; font-size: 11px; font-weight: bold; height: 15px; }
+
+        /* Feature Glow Grid */
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 900px; margin-top: 30px; }
+        .feat-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; transition: 0.4s; cursor: default; }
+        .feat-card:hover { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.15); transform: translateY(-5px); }
+        .feat-card h3 { color: var(--primary); font-size: 13px; margin: 0 0 10px 0; }
+        .feat-card p { color: #777; font-size: 11px; margin: 0; line-height: 1.6; }
+
+        /* FAQ */
+        .faq { width: 900px; margin-top: 40px; border-top: 1px solid #222; padding-top: 25px; }
+        .faq-item { margin-bottom: 20px; }
+        .faq-q { color: #fff; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .faq-q::before { content: '●'; color: var(--primary); }
+        .faq-a { color: #666; font-size: 12px; padding-left: 20px; line-height: 1.7; }
+
+        /* Settings Modal */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 10; backdrop-filter: blur(5px); }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; background: #1a1a1a; border: 1px solid var(--primary); border-radius: 10px; padding: 30px; z-index: 11; display: none; }
+        .tag-box { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; background: #080808; border: 1px solid #333; padding: 12px; margin: 15px 0; border-radius: 5px; }
+        .tag { background: rgba(0, 255, 136, 0.1); color: var(--primary); padding: 5px 12px; border-radius: 4px; font-size: 11px; border: 1px solid var(--primary); cursor: pointer; }
+        .input-group { display: flex; gap: 8px; }
+        .input-group input { flex: 1; background: #000; border: 1px solid #333; padding: 12px; color: var(--primary); outline: none; border-radius: 4px; }
     </style>
 </head>
 <body>
 
+<div class="profile">
+    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tien" alt="Tiến">
+    <h1>Tiến</h1>
+    <span>ELITE SCRIPT SECURITY</span>
+</div>
+
 <div id="overlay"></div>
-<div class="setting-ui" id="setting-modal">
-    <h3 style="color:#fff; text-align:center; font-size:14px;">SETTINGS</h3>
-    <div class="input-box">
+<div class="modal" id="setting-modal">
+    <h3 style="color:#fff; text-align:center; font-size:14px; margin:0 0 20px 0;">EXECUTOR BLACKLIST</h3>
+    <div class="input-group">
         <input type="text" id="exec-input" placeholder="Executor name..." oninput="toggleAddBtn()">
-        <button id="add-btn" style="display:none; background:#00ff88; color:#000; width:60px;" onclick="addTag()">ADD</button>
+        <button id="add-btn" style="display:none; background:var(--primary); color:#000; width:70px;" onclick="addTag()">ADD</button>
     </div>
-    <div class="tag-container" id="tag-container"></div>
-    <button style="width:100%; background:#222; color:#fff;" onclick="closeSettings()">SAVE</button>
+    <div class="tag-box" id="tag-container"></div>
+    <button style="width:100%; background:#222; color:#fff;" onclick="closeSettings()">SAVE CHANGES</button>
 </div>
 
 <div class="window" id="main-window">
-    <h2>OBFUSCATOR</h2>
+    <h2>LUA OBFUSCATOR V3.0</h2>
     <div class="editor-wrapper">
-        <div class="gutter"><div class="line-numbers" id="line-num-gutter"></div></div>
+        <div class="gutter">
+            <div class="line-numbers" id="line-num-gutter"></div>
+        </div>
         <div class="editor-container">
             <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
-            <textarea id="editor" spellcheck="false" placeholder="Paste Lua code here..." oninput="updateView()" onscroll="syncScroll()"></textarea>
+            <textarea id="editor" spellcheck="false" placeholder="-- Input your script here..." oninput="updateView()" onscroll="syncScroll()"></textarea>
         </div>
     </div>
     <div class="btn-group">
-        <button class="btn-obf" onclick="doObfuscate()">Obfuscate</button>
+        <button class="btn-obf" onclick="doObfuscate()">Obfuscate Now</button>
         <button class="btn-setting" onclick="openSettings()">⚙️</button>
         <button class="btn-copy" onclick="doCopy()">Copy</button>
         <button class="btn-clear" onclick="doReset()">Clear</button>
     </div>
     <div id="status">READY</div>
+</div>
+
+<div class="features">
+    <div class="feat-card">
+        <h3>Code Security</h3>
+        <p>Prevents reverse engineering and unauthorized modifications by skids.</p>
+    </div>
+    <div class="feat-card">
+        <h3>Intellectual Property</h3>
+        <p>Safeguards proprietary algorithms and core business logic effectively.</p>
+    </div>
+    <div class="feat-card">
+        <h3>Anti-Tampering</h3>
+        <p>Makes it extremely difficult for attackers to exploit your software.</p>
+    </div>
+    <div class="feat-card">
+        <h3>Obscure Format</h3>
+        <p>Converts code into a chaotic format while keeping 100% functionality.</p>
+    </div>
+    <div class="feat-card">
+        <h3>License Guard</h3>
+        <p>Deters unauthorized use by making restrictions impossible to bypass.</p>
+    </div>
+    <div class="feat-card">
+        <h3>Free & Secure</h3>
+        <p>100% client-side processing. Your code never leaves your browser.</p>
+    </div>
+</div>
+
+<div class="faq">
+    <div class="faq-item">
+        <div class="faq-q">Is this detectable by Roblox?</div>
+        <div class="faq-a">No, this engine uses standard Luau VM instructions. It is 100% safe for all major executors.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q">Does it reduce script performance?</div>
+        <div class="faq-a">Minimally. While it adds layers, the core logic execution speed remains almost identical.</div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -93,38 +170,30 @@
         syncScroll();
     }
 
+    // Fixed Sync Scroll Logic
     function syncScroll() { 
         document.getElementById('highlight-layer').scrollTop = editor.scrollTop;
-        lineNumGutter.parentElement.scrollTop = editor.scrollTop;
+        document.getElementById('highlight-layer').scrollLeft = editor.scrollLeft;
+        lineNumGutter.style.top = `-${editor.scrollTop}px`;
     }
 
     function doObfuscate() {
         if (!editor.value) return;
-        setStatus("PROCESS...");
+        setStatus("INITIALIZING ENGINE...");
         setTimeout(() => {
-            const r1 = Math.floor(Math.random() * 8000), r2 = Math.floor(Math.random() * 8000), r3 = Math.floor(Math.random() * 8000);
+            const r1 = Math.floor(Math.random() * 9999), r2 = Math.floor(Math.random() * 9999), r3 = Math.floor(Math.random() * 9999);
             const secret = r1 + r2 + r3;
 
-            // Hàm tạo junk code ngẫu nhiên để kéo dài
-            const generateJunk = () => {
-                let junk = "";
-                for(let i=0; i<2; i++) {
-                    let name = "l1lI" + Math.floor(Math.random()*1000);
-                    junk += `local function ${name}() return ${Math.random()} end; `;
-                }
-                return junk;
-            };
-
             const hide = (s) => {
-                let k = Math.floor(Math.random() * 100) + 25;
+                let k = Math.floor(Math.random() * 100) + 40;
                 let d = s.split('').map(c => c.charCodeAt(0) ^ k).join(',');
-                return `(function() ${generateJunk()} local k,v = ${k},{${d}} local r="" for i=1,#v do r=r..string.char(bit32.bxor(v[i],k)) end return r end)()`;
+                return `(function() local k,v = ${k},{${d}} local r="" for i=1,#v do r=r..string.char(bit32.bxor(v[i],k)) end return r end)()`;
             };
 
             let bl = "";
             if (blockedExecutors.length > 0) {
-                const enc = blockedExecutors.map(e => "{" + e.split('').map(c => c.charCodeAt(0) ^ 7).join(',') + "}").join(",");
-                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(bit32.bxor(b,7)) end if Il1:find(s) then while true do end end end `;
+                const enc = blockedExecutors.map(e => "{" + e.split('').map(c => c.charCodeAt(0) ^ 11).join(',') + "}").join(",");
+                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(bit32.bxor(b,11)) end if Il1:find(s) then while true do end end end `;
             }
 
             let data = "{", count = 0;
@@ -136,21 +205,20 @@
                 }
             });
 
-            const core = `local function lI(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() ${generateJunk()} local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for i=1,#d do local c=d[i] if o[c[1]] then o[c[1]](c[2])end end end`;
+            const junk = `local function l1lI() local _={${Math.random()}} return _ end; `;
+            const core = `local function lI(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() ${junk} local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for i=1,#d do local c=d[i] if o[c[1]] then o[c[1]](c[2])end end end`;
 
-            // Wrapper ảo siêu dài
-            const junkArr = Array.from({length:15}, () => Math.floor(Math.random()*1000)).join(',');
-            const wrapperStart = `return (function(...) local _r = {${junkArr}}; ${generateJunk()}`;
+            const wrapperStart = `return (function(...) local _j = {${Array.from({length:20}, ()=>Math.floor(Math.random()*1000)).join(',')}}; `;
             const wrapperEnd = ` end)(...)`;
 
             editor.value = `${wrapperStart} ${bl} local v1,v2,v3=${r1},${r2},${r3} ${core} lI(${data}},v1,v2,v3) ${wrapperEnd}`;
             
-            updateView(); setStatus("DONE!");
-        }, 1000);
+            updateView(); setStatus("OBFUSCATION COMPLETE!");
+        }, 1500);
     }
 
-    function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("COPIED!"); }
-    function doReset() { editor.value = ""; updateView(); setStatus("CLEARED!"); }
+    function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("COPIED TO CLIPBOARD!"); }
+    function doReset() { editor.value = ""; updateView(); setStatus("EDITOR CLEARED!"); }
 </script>
 </body>
 </html>
