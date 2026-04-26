@@ -2,35 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Obfuscator</title>
+    <title>tienxida112-blip | Obfuscator Engine</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         :root { --primary: #00ff88; --bg: #0d0d0d; --card: #151515; }
         body { background: var(--bg); color: var(--primary); font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 40px 0; overflow-x: hidden; }
         
-        /* Profile Section Updated */
         .profile { text-align: center; margin-bottom: 30px; text-decoration: none; display: block; transition: 0.3s; }
         .profile:hover { transform: scale(1.05); }
         .profile img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
         .profile h1 { color: #fff; margin: 10px 0 5px; font-size: 22px; }
         .profile span { color: #666; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; }
 
-        /* Main Window */
         .window { width: 900px; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
         .window.blur { filter: blur(8px); pointer-events: none; }
         h2 { text-align: center; margin-top: 0; color: #fff; font-size: 16px; letter-spacing: 4px; border-bottom: 1px solid #222; padding-bottom: 15px; }
 
-        /* Editor & Sync Scroll Fix */
+        /* RE-FIXED EDITOR LAYOUT */
         .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 6px; height: 400px; overflow: hidden; position: relative; }
-        .gutter { background: #0a0a0a; border-right: 1px solid #222; width: 50px; flex-shrink: 0; overflow: hidden; position: relative; }
-        .line-numbers { position: absolute; width: 100%; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 10px; user-select: none; }
         
-        .editor-container { position: relative; flex: 1; overflow: hidden; }
-        #editor, #highlight-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: auto; }
-        #editor { color: transparent; caret-color: var(--primary); background: transparent; z-index: 2; resize: none; }
-        #highlight-layer { z-index: 1; pointer-events: none; color: #888; overflow: hidden; }
+        .editor-scroller { display: flex; flex: 1; overflow: auto; position: relative; scroll-behavior: auto; }
+        
+        .gutter { background: #0a0a0a; border-right: 1px solid #222; min-width: 50px; flex-shrink: 0; position: sticky; left: 0; z-index: 5; }
+        .line-numbers { color: #333; padding: 10px 0; text-align: right; font-size: 13px; line-height: 1.5; padding-right: 10px; user-select: none; pointer-events: none; }
+        
+        .editor-container { position: relative; flex: 1; min-width: 1000px; } /* min-width để scroll ngang ko bị vỡ */
+        #editor, #highlight-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: hidden; }
+        
+        #editor { color: transparent; caret-color: var(--primary); background: transparent; z-index: 2; resize: none; width: 100%; height: 100%; }
+        #highlight-layer { z-index: 1; pointer-events: none; color: #888; width: 100%; height: 100%; }
 
-        /* Control Buttons */
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 14px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Consolas', monospace; font-size: 12px; text-transform: uppercase; }
         .btn-obf { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2); }
@@ -40,21 +41,18 @@
         .btn-clear { background: #331111; color: #ff4444; }
         #status { text-align: center; margin-top: 15px; font-size: 11px; font-weight: bold; height: 15px; }
 
-        /* Feature Glow Grid */
         .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 900px; margin-top: 30px; }
         .feat-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; transition: 0.4s; cursor: default; }
         .feat-card:hover { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.15); transform: translateY(-5px); }
         .feat-card h3 { color: var(--primary); font-size: 13px; margin: 0 0 10px 0; }
         .feat-card p { color: #777; font-size: 11px; margin: 0; line-height: 1.6; }
 
-        /* FAQ */
         .faq { width: 900px; margin-top: 40px; border-top: 1px solid #222; padding-top: 25px; }
         .faq-item { margin-bottom: 20px; }
         .faq-q { color: #fff; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
         .faq-q::before { content: '●'; color: var(--primary); }
         .faq-a { color: #666; font-size: 12px; padding-left: 20px; line-height: 1.7; }
 
-        /* Settings Modal */
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 10; backdrop-filter: blur(5px); }
         .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; background: #1a1a1a; border: 1px solid var(--primary); border-radius: 10px; padding: 30px; z-index: 11; display: none; }
         .tag-box { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; background: #080808; border: 1px solid #333; padding: 12px; margin: 15px 0; border-radius: 5px; }
@@ -68,7 +66,7 @@
 <a href="https://github.com/tienxida112-blip" target="_blank" class="profile">
     <img src="https://avatars.githubusercontent.com/u/246861080?s=96&v=4" alt="tienxida112-blip">
     <h1>tienxida112-blip</h1>
-    <span>Random Guy</span>
+    <span>Expert Developer | Script Security</span>
 </a>
 
 <div id="overlay"></div>
@@ -85,12 +83,14 @@
 <div class="window" id="main-window">
     <h2>LUA OBFUSCATOR ENGINE</h2>
     <div class="editor-wrapper">
-        <div class="gutter">
-            <div class="line-numbers" id="line-num-gutter"></div>
-        </div>
-        <div class="editor-container">
-            <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
-            <textarea id="editor" spellcheck="false" placeholder="-- Input your script here..." oninput="updateView()" onscroll="syncScroll()"></textarea>
+        <div class="editor-scroller" id="scroller" onscroll="syncScroll()">
+            <div class="gutter">
+                <div class="line-numbers" id="line-num-gutter">1</div>
+            </div>
+            <div class="editor-container">
+                <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
+                <textarea id="editor" spellcheck="false" placeholder="-- Input your script here..." oninput="updateView()"></textarea>
+            </div>
         </div>
     </div>
     <div class="btn-group">
@@ -129,17 +129,6 @@
     </div>
 </div>
 
-<div class="faq">
-    <div class="faq-item">
-        <div class="faq-q">Is it 100% safe to use?</div>
-        <div class="faq-a">Yes. We use standard Luau VM instructions compatible with all executors.</div>
-    </div>
-    <div class="faq-item">
-        <div class="faq-q">Will it break my script?</div>
-        <div class="faq-a">Our engine handles basic function calls and strings. Complex meta-methods might need testing.</div>
-    </div>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
 
@@ -147,6 +136,7 @@
     const editor = document.getElementById('editor');
     const highlightContent = document.getElementById('highlight-content');
     const lineNumGutter = document.getElementById('line-num-gutter');
+    const scroller = document.getElementById('scroller');
     const status = document.getElementById('status');
     const mainWindow = document.getElementById('main-window');
     const settingModal = document.getElementById('setting-modal');
@@ -164,17 +154,28 @@
     function setStatus(text, dur = 2000) { status.innerText = text; if(dur>0) setTimeout(()=>status.innerText="READY", dur); }
 
     function updateView() {
-        highlightContent.textContent = editor.value;
+        const text = editor.value;
+        highlightContent.textContent = text;
         Prism.highlightElement(highlightContent);
-        const lines = editor.value.split('\n').length;
-        lineNumGutter.innerHTML = Array.from({length: lines}, (_, i) => `<div>${i+1}</div>`).join('');
-        syncScroll();
+        
+        // Cập nhật số dòng
+        const lines = text.split('\n').length;
+        let lineNumbersHTML = '';
+        for (let i = 1; i <= lines; i++) {
+            lineNumbersHTML += i + '<br>';
+        }
+        lineNumGutter.innerHTML = lineNumbersHTML;
+
+        // Tự động điều chỉnh chiều cao textarea và highlight layer dựa trên nội dung
+        const height = Math.max(lines * 19.5 + 20, 380); // 19.5 là line-height x font-size
+        editor.style.height = height + 'px';
+        document.getElementById('highlight-layer').style.height = height + 'px';
     }
 
-    function syncScroll() { 
-        document.getElementById('highlight-layer').scrollTop = editor.scrollTop;
-        document.getElementById('highlight-layer').scrollLeft = editor.scrollLeft;
-        lineNumGutter.style.top = `-${editor.scrollTop}px`;
+    function syncScroll() {
+        // Không cần sync top nữa vì chúng ta scroll cái container bọc ngoài
+        // Chỉ cần sync left cho layer highlight nếu scroll ngang
+        document.getElementById('highlight-layer').scrollLeft = scroller.scrollLeft;
     }
 
     function doObfuscate() {
