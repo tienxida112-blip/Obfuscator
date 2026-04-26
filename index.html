@@ -6,32 +6,29 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         body { background: #0d0d0d; color: #00ff88; font-family: 'Consolas', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .profile { text-align: center; margin-bottom: 15px; text-decoration: none; display: block; transition: 0.3s; }
-        .profile img { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #00ff88; box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
-        .profile span { display: block; color: #aaa; font-size: 11px; margin-top: 5px; letter-spacing: 1px; }
-        .window { width: 750px; background: #151515; padding: 20px; border-radius: 10px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 1; transition: 0.3s; }
+        .window { width: 850px; background: #151515; padding: 20px; border-radius: 10px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s; }
         .window.blur { filter: blur(5px); pointer-events: none; opacity: 0.4; }
         h2 { text-align: center; margin: 0 0 15px 0; font-size: 14px; color: #fff; letter-spacing: 2px; }
-        .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 4px; height: 320px; overflow: hidden; position: relative; }
+        .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 4px; height: 400px; overflow: hidden; position: relative; }
         .gutter { display: flex; background: #0a0a0a; border-right: 1px solid #222; user-select: none; }
-        .line-numbers { width: 30px; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 5px; }
+        .line-numbers { width: 35px; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 5px; }
         .editor-container { position: relative; flex: 1; overflow: auto; }
         #editor, #highlight-layer { position: absolute; top: 0; left: 0; min-width: 100%; min-height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: hidden; }
         #editor { color: transparent; caret-color: #00ff88; background: transparent; z-index: 2; resize: none; }
         #highlight-layer { z-index: 1; pointer-events: none; color: #888; }
         .btn-group { display: flex; gap: 8px; margin-top: 12px; }
-        button { flex: 1; padding: 10px; border: none; border-radius: 3px; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Consolas', monospace; font-size: 11px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 3px; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Consolas', monospace; font-size: 11px; text-transform: uppercase; }
         .btn-obf { background: #00ff88; color: #000; }
-        .btn-setting { background: rgba(0, 255, 136, 0.15); color: #00ff88; width: 40px; flex: none; border: 1px solid #00ff88; }
+        .btn-setting { background: rgba(0, 255, 136, 0.15); color: #00ff88; width: 50px; flex: none; border: 1px solid #00ff88; }
         .btn-copy { background: #222; color: #ccc; border: 1px solid #333; }
         .btn-clear { background: #441111; color: #ff4444; }
-        #status { text-align: center; margin-top: 12px; font-size: 10px; color: #00ff88; height: 12px; font-weight: bold; }
+        #status { text-align: center; margin-top: 12px; font-size: 10px; color: #00ff88; font-weight: bold; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 10; backdrop-filter: blur(2px); }
-        .setting-ui { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #1a1a1a; border: 1px solid #00ff88; border-radius: 8px; padding: 20px; z-index: 11; display: none; box-shadow: 0 0 40px rgba(0,255,136,0.2); }
-        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; min-height: 50px; padding: 10px; background: #0a0a0a; border: 1px solid #222; border-radius: 4px; }
+        .setting-ui { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #1a1a1a; border: 1px solid #00ff88; border-radius: 8px; padding: 20px; z-index: 11; display: none; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; min-height: 50px; padding: 10px; background: #0a0a0a; border: 1px solid #222; margin-bottom: 10px; }
         .tag { background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 4px 8px; border-radius: 3px; font-size: 10px; border: 1px solid #00ff88; cursor: pointer; }
-        .input-box { display: flex; gap: 5px; margin-bottom: 15px; }
-        .input-box input { flex: 1; background: #0a0a0a; border: 1px solid #333; border-radius: 3px; padding: 8px; color: #00ff88; outline: none; }
+        .input-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .input-box input { flex: 1; background: #0a0a0a; border: 1px solid #333; padding: 8px; color: #00ff88; outline: none; }
     </style>
 </head>
 <body>
@@ -44,29 +41,25 @@
         <button id="add-btn" style="display:none; background:#00ff88; color:#000; width:60px;" onclick="addTag()">ADD</button>
     </div>
     <div class="tag-container" id="tag-container"></div>
-    <button class="close-setting" style="margin-top:10px; width:100%; border:1px solid #333; background:#222; color:#fff; cursor:pointer; padding:5px;" onclick="closeSettings()">SAVE</button>
+    <button style="width:100%; background:#222; color:#fff;" onclick="closeSettings()">SAVE</button>
 </div>
 
-<div class="main-container">
-    <div class="window" id="main-window">
-        <h2>OBFUSCATOR</h2>
-        <div class="editor-wrapper">
-            <div class="gutter">
-                <div class="line-numbers" id="line-num-gutter"></div>
-            </div>
-            <div class="editor-container">
-                <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
-                <textarea id="editor" spellcheck="false" placeholder="Paste Lua code here..." oninput="updateView()" onscroll="syncScroll()"></textarea>
-            </div>
+<div class="window" id="main-window">
+    <h2>OBFUSCATOR</h2>
+    <div class="editor-wrapper">
+        <div class="gutter"><div class="line-numbers" id="line-num-gutter"></div></div>
+        <div class="editor-container">
+            <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
+            <textarea id="editor" spellcheck="false" placeholder="Paste Lua code here..." oninput="updateView()" onscroll="syncScroll()"></textarea>
         </div>
-        <div class="btn-group">
-            <button class="btn-obf" onclick="doObfuscate()">Obfuscate</button>
-            <button class="btn-setting" onclick="openSettings()">⚙️</button>
-            <button class="btn-copy" onclick="doCopy()">Copy</button>
-            <button class="btn-clear" onclick="doReset()">Clear</button>
-        </div>
-        <div id="status">READY</div>
     </div>
+    <div class="btn-group">
+        <button class="btn-obf" onclick="doObfuscate()">Obfuscate</button>
+        <button class="btn-setting" onclick="openSettings()">⚙️</button>
+        <button class="btn-copy" onclick="doCopy()">Copy</button>
+        <button class="btn-clear" onclick="doReset()">Clear</button>
+    </div>
+    <div id="status">READY</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -88,18 +81,8 @@
     function openSettings() { mainWindow.classList.add('blur'); overlay.style.display = 'block'; settingModal.style.display = 'block'; }
     function closeSettings() { mainWindow.classList.remove('blur'); overlay.style.display = 'none'; settingModal.style.display = 'none'; }
     function toggleAddBtn() { document.getElementById('add-btn').style.display = execInput.value ? 'block' : 'none'; }
-    
-    function addTag() {
-        if (execInput.value && !blockedExecutors.includes(execInput.value)) {
-            blockedExecutors.push(execInput.value);
-            renderTags(); execInput.value = ''; toggleAddBtn();
-        }
-    }
-
-    function renderTags() {
-        tagContainer.innerHTML = blockedExecutors.map(t => `<div class="tag" onclick="blockedExecutors=blockedExecutors.filter(x=>x!=='${t}');renderTags()">${t} ×</div>`).join('');
-    }
-
+    function addTag() { if (execInput.value && !blockedExecutors.includes(execInput.value)) { blockedExecutors.push(execInput.value); renderTags(); execInput.value = ''; toggleAddBtn(); } }
+    function renderTags() { tagContainer.innerHTML = blockedExecutors.map(t => `<div class="tag" onclick="blockedExecutors=blockedExecutors.filter(x=>x!=='${t}');renderTags()">${t} ×</div>`).join(''); }
     function setStatus(text, dur = 2000) { status.innerText = text; if(dur>0) setTimeout(()=>status.innerText="READY", dur); }
 
     function updateView() {
@@ -119,37 +102,51 @@
         if (!editor.value) return;
         setStatus("PROCESS...");
         setTimeout(() => {
-            const r1 = Math.floor(Math.random() * 5000), r2 = Math.floor(Math.random() * 5000), r3 = Math.floor(Math.random() * 5000);
+            const r1 = Math.floor(Math.random() * 8000), r2 = Math.floor(Math.random() * 8000), r3 = Math.floor(Math.random() * 8000);
             const secret = r1 + r2 + r3;
 
-            // Hàm băm chuỗi fix lỗi unicode rách tả tơi
+            // Hàm tạo junk code ngẫu nhiên để kéo dài
+            const generateJunk = () => {
+                let junk = "";
+                for(let i=0; i<2; i++) {
+                    let name = "l1lI" + Math.floor(Math.random()*1000);
+                    junk += `local function ${name}() return ${Math.random()} end; `;
+                }
+                return junk;
+            };
+
             const hide = (s) => {
-                let k = Math.floor(Math.random() * 100) + 20;
+                let k = Math.floor(Math.random() * 100) + 25;
                 let d = s.split('').map(c => c.charCodeAt(0) ^ k).join(',');
-                return `(function() local k,v = ${k},{${d}} local r="" for i=1,#v do r=r..string.char(bit32.bxor(v[i],k)) end return r end)()`;
+                return `(function() ${generateJunk()} local k,v = ${k},{${d}} local r="" for i=1,#v do r=r..string.char(bit32.bxor(v[i],k)) end return r end)()`;
             };
 
             let bl = "";
             if (blockedExecutors.length > 0) {
-                const enc = blockedExecutors.map(e => "{" + e.split('').map(c => c.charCodeAt(0) ^ 5).join(',') + "}").join(",");
-                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(bit32.bxor(b,5)) end if Il1:find(s) then while true do end end end `;
+                const enc = blockedExecutors.map(e => "{" + e.split('').map(c => c.charCodeAt(0) ^ 7).join(',') + "}").join(",");
+                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(bit32.bxor(b,7)) end if Il1:find(s) then while true do end end end `;
             }
 
             let data = "{", count = 0;
             editor.value.split('\n').forEach(line => {
                 const m = line.match(/(\w+)\(["'](.+)["']\)/);
                 if (m) {
-                    // Dùng ký tự số để tránh lỗi unicode stack
                     data += `{"\\2",${hide(m[1])}},{"\\1",${hide(m[2])}},{"\\3",${count + 1 + secret}},`;
                     count++;
                 }
             });
 
-            const core = `local function lI(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for i=1,#d do local c=d[i] if o[c[1]] then o[c[1]](c[2])end end end`;
+            const core = `local function lI(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() ${generateJunk()} local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for i=1,#d do local c=d[i] if o[c[1]] then o[c[1]](c[2])end end end`;
 
-            editor.value = `return(function(...) ${bl}local v1,v2,v3=${r1},${r2},${r3} ${core} lI(${data}},v1,v2,v3) end)(getfenv(...))`;
+            // Wrapper ảo siêu dài
+            const junkArr = Array.from({length:15}, () => Math.floor(Math.random()*1000)).join(',');
+            const wrapperStart = `return (function(...) local _r = {${junkArr}}; ${generateJunk()}`;
+            const wrapperEnd = ` end)(...)`;
+
+            editor.value = `${wrapperStart} ${bl} local v1,v2,v3=${r1},${r2},${r3} ${core} lI(${data}},v1,v2,v3) ${wrapperEnd}`;
+            
             updateView(); setStatus("DONE!");
-        }, 800);
+        }, 1000);
     }
 
     function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("COPIED!"); }
