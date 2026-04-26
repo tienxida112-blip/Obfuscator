@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PROTECTOR</title>
+    <title>Obfuscator</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         body { background: #0d0d0d; color: #00ff88; font-family: 'Consolas', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
@@ -15,8 +15,6 @@
         .editor-wrapper { display: flex; background: #050505; border: 1px solid #222; border-radius: 4px; height: 320px; overflow: hidden; position: relative; }
         .gutter { display: flex; background: #0a0a0a; border-right: 1px solid #222; user-select: none; }
         .line-numbers { width: 30px; color: #333; padding: 10px 0; text-align: right; font-size: 12px; line-height: 1.5; padding-right: 5px; }
-        .fold-gutter { width: 18px; padding: 10px 0; text-align: center; }
-        .fold-btn { color: #444; cursor: pointer; font-size: 11px; line-height: 1.5; display: block; height: 18px; }
         .editor-container { position: relative; flex: 1; overflow: auto; }
         #editor, #highlight-layer { position: absolute; top: 0; left: 0; min-width: 100%; min-height: 100%; margin: 0; padding: 10px; box-sizing: border-box; font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.5; border: none; outline: none; white-space: pre; overflow: hidden; }
         #editor { color: transparent; caret-color: #00ff88; background: transparent; z-index: 2; resize: none; }
@@ -46,16 +44,15 @@
         <button id="add-btn" style="display:none; background:#00ff88; color:#000; width:60px;" onclick="addTag()">ADD</button>
     </div>
     <div class="tag-container" id="tag-container"></div>
-    <button class="close-setting" style="margin-top:10px; width:100%;" onclick="closeSettings()">SAVE</button>
+    <button class="close-setting" style="margin-top:10px; width:100%; border:1px solid #333; background:#222; color:#fff; cursor:pointer; padding:5px;" onclick="closeSettings()">SAVE</button>
 </div>
 
 <div class="main-container">
     <div class="window" id="main-window">
-        <h2>CORE OBFUSCATOR</h2>
+        <h2>OBFUSCATOR</h2>
         <div class="editor-wrapper">
             <div class="gutter">
                 <div class="line-numbers" id="line-num-gutter"></div>
-                <div class="fold-gutter" id="fold-gutter"></div>
             </div>
             <div class="editor-container">
                 <pre id="highlight-layer"><code class="language-lua" id="highlight-content"></code></pre>
@@ -125,30 +122,32 @@
             const r1 = Math.floor(Math.random() * 5000), r2 = Math.floor(Math.random() * 5000), r3 = Math.floor(Math.random() * 5000);
             const secret = r1 + r2 + r3;
 
+            // Hàm băm chuỗi fix lỗi unicode rách tả tơi
             const hide = (s) => {
                 let k = Math.floor(Math.random() * 100) + 20;
                 let d = s.split('').map(c => c.charCodeAt(0) ^ k).join(',');
-                return `(function() local l,ll=${k},{${d}} local lI="" for _,v in ipairs(ll) do lI=lI..string.char(v^l) end return lI end)()`;
+                return `(function() local k,v = ${k},{${d}} local r="" for i=1,#v do r=r..string.char(bit32.bxor(v[i],k)) end return r end)()`;
             };
 
             let bl = "";
             if (blockedExecutors.length > 0) {
                 const enc = blockedExecutors.map(e => "{" + e.split('').map(c => c.charCodeAt(0) ^ 5).join(',') + "}").join(",");
-                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(b^5) end if Il1:find(s) then while true do end end end `;
+                bl = `local l1I={${enc}} local Il1=identifyexecutor() for _,v in ipairs(l1I) do local s="" for _,b in ipairs(v) do s=s..string.char(bit32.bxor(b,5)) end if Il1:find(s) then while true do end end end `;
             }
 
             let data = "{", count = 0;
             editor.value.split('\n').forEach(line => {
                 const m = line.match(/(\w+)\(["'](.+)["']\)/);
                 if (m) {
-                    data += `{(1==1 and "\\2"),${hide(m[1])}},{(1==1 and "\\1"),${hide(m[2])}},{(1==1 and "\\3"),${count + 1 + secret}},`;
+                    // Dùng ký tự số để tránh lỗi unicode stack
+                    data += `{"\\2",${hide(m[1])}},{"\\1",${hide(m[2])}},{"\\3",${count + 1 + secret}},`;
                     count++;
                 }
             });
 
-            const core = `local function lllII(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for _,i in ipairs(d) do local c=i[1] if o[c] then o[c](i[2])end end end`;
+            const core = `local function lI(d,r1,r2,r3) local k=r1+r2+r3 local s,e={},getfenv() local o={["\\1"]=function(v)table.insert(s,v)end,["\\2"]=function(k)table.insert(s,e[k] or _G[k])end,["\\3"]=function(n)local a={}for i=1,n-k do table.insert(a,1,table.remove(s))end local f=table.remove(s)if f then pcall(f,unpack(a))end end}for i=1,#d do local c=d[i] if o[c[1]] then o[c[1]](c[2])end end end`;
 
-            editor.value = `return(function(...) ${bl}local l1,l2,l3=${r1},${r2},${r3} ${core} lllII(${data}},l1,l2,l3) end)(getfenv(...))`;
+            editor.value = `return(function(...) ${bl}local v1,v2,v3=${r1},${r2},${r3} ${core} lI(${data}},v1,v2,v3) end)(getfenv(...))`;
             updateView(); setStatus("DONE!");
         }, 800);
     }
