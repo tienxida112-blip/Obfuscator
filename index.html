@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tiến | Obfuscator Engine</title>
+    <title>Obfuscator</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         :root { --primary: #00ff88; --bg: #0d0d0d; --card: #151515; }
         body { background: var(--bg); color: var(--primary); font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 40px 0; overflow-x: hidden; }
         
-        /* Profile Section */
-        .profile { text-align: center; margin-bottom: 30px; text-decoration: none; }
-        .profile img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        /* Profile Section Updated */
+        .profile { text-align: center; margin-bottom: 30px; text-decoration: none; display: block; transition: 0.3s; }
+        .profile:hover { transform: scale(1.05); }
+        .profile img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
         .profile h1 { color: #fff; margin: 10px 0 5px; font-size: 22px; }
-        .profile span { color: #666; font-size: 12px; letter-spacing: 3px; }
+        .profile span { color: #666; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; }
 
         /* Main Window */
         .window { width: 900px; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.7); position: relative; }
@@ -64,11 +65,11 @@
 </head>
 <body>
 
-<div class="profile">
-    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tien" alt="Tiến">
-    <h1>Tiến</h1>
-    <span>ELITE SCRIPT SECURITY</span>
-</div>
+<a href="https://github.com/tienxida112-blip" target="_blank" class="profile">
+    <img src="https://avatars.githubusercontent.com/u/246861080?s=96&v=4" alt="tienxida112-blip">
+    <h1>tienxida112-blip</h1>
+    <span>Random Guy</span>
+</a>
 
 <div id="overlay"></div>
 <div class="modal" id="setting-modal">
@@ -82,7 +83,7 @@
 </div>
 
 <div class="window" id="main-window">
-    <h2>LUA OBFUSCATOR V3.0</h2>
+    <h2>LUA OBFUSCATOR ENGINE</h2>
     <div class="editor-wrapper">
         <div class="gutter">
             <div class="line-numbers" id="line-num-gutter"></div>
@@ -104,38 +105,38 @@
 <div class="features">
     <div class="feat-card">
         <h3>Code Security</h3>
-        <p>Prevents reverse engineering and unauthorized modifications by skids.</p>
+        <p>Prevents reverse engineering and unauthorized modifications to your source code.</p>
     </div>
     <div class="feat-card">
         <h3>Intellectual Property</h3>
-        <p>Safeguards proprietary algorithms and core business logic effectively.</p>
+        <p>Safeguards proprietary algorithms and core business logic from theft.</p>
     </div>
     <div class="feat-card">
         <h3>Anti-Tampering</h3>
-        <p>Makes it extremely difficult for attackers to exploit your software.</p>
+        <p>Makes it extremely difficult for attackers to exploit or modify your scripts.</p>
     </div>
     <div class="feat-card">
-        <h3>Obscure Format</h3>
-        <p>Converts code into a chaotic format while keeping 100% functionality.</p>
+        <h3>Reduced Readability</h3>
+        <p>Converts code into an obscure format while keeping it 100% functional.</p>
     </div>
     <div class="feat-card">
-        <h3>License Guard</h3>
-        <p>Deters unauthorized use by making restrictions impossible to bypass.</p>
+        <h3>License Enforcement</h3>
+        <p>Helps deter unauthorized use by making it hard to bypass license checks.</p>
     </div>
     <div class="feat-card">
-        <h3>Free & Secure</h3>
-        <p>100% client-side processing. Your code never leaves your browser.</p>
+        <h3>Zero-Leak Tech</h3>
+        <p>All processing is done client-side. Your raw code never leaves your browser.</p>
     </div>
 </div>
 
 <div class="faq">
     <div class="faq-item">
-        <div class="faq-q">Is this detectable by Roblox?</div>
-        <div class="faq-a">No, this engine uses standard Luau VM instructions. It is 100% safe for all major executors.</div>
+        <div class="faq-q">Is it 100% safe to use?</div>
+        <div class="faq-a">Yes. We use standard Luau VM instructions compatible with all executors.</div>
     </div>
     <div class="faq-item">
-        <div class="faq-q">Does it reduce script performance?</div>
-        <div class="faq-a">Minimally. While it adds layers, the core logic execution speed remains almost identical.</div>
+        <div class="faq-q">Will it break my script?</div>
+        <div class="faq-a">Our engine handles basic function calls and strings. Complex meta-methods might need testing.</div>
     </div>
 </div>
 
@@ -170,7 +171,6 @@
         syncScroll();
     }
 
-    // Fixed Sync Scroll Logic
     function syncScroll() { 
         document.getElementById('highlight-layer').scrollTop = editor.scrollTop;
         document.getElementById('highlight-layer').scrollLeft = editor.scrollLeft;
@@ -179,7 +179,7 @@
 
     function doObfuscate() {
         if (!editor.value) return;
-        setStatus("INITIALIZING ENGINE...");
+        setStatus("ENCRYPTING DATA...");
         setTimeout(() => {
             const r1 = Math.floor(Math.random() * 9999), r2 = Math.floor(Math.random() * 9999), r3 = Math.floor(Math.random() * 9999);
             const secret = r1 + r2 + r3;
@@ -217,8 +217,8 @@
         }, 1500);
     }
 
-    function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("COPIED TO CLIPBOARD!"); }
-    function doReset() { editor.value = ""; updateView(); setStatus("EDITOR CLEARED!"); }
+    function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("COPIED!"); }
+    function doReset() { editor.value = ""; updateView(); setStatus("CLEARED!"); }
 </script>
 </body>
 </html>
