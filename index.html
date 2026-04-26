@@ -7,7 +7,6 @@
     <style>
         :root { --primary: #00ff88; --bg: #0d0d0d; --card: #151515; --font: 'Consolas', 'Monaco', monospace; }
         
-        /* Chống viền xanh khi bấm nút hoặc vào ô nhập liệu */
         button:focus, textarea:focus, input:focus {
             outline: none !important;
         }
@@ -47,16 +46,16 @@
         }
         .line-numbers { color: #333; font-size: 13px; line-height: 1.5; padding-right: 10px; font-family: var(--font); }
 
-        .editor-area { position: relative; flex-grow: 1; min-width: fit-content; }
+        .editor-area { position: relative; flex-grow: 1; min-width: 100%; }
 
         #editor, #highlight-layer {
             margin: 0; padding: 10px; border: none; outline: none; font-family: var(--font);
             font-size: 13px; line-height: 1.5; white-space: pre; tab-size: 4;
-            box-sizing: border-box; display: block; min-width: 100%;
+            box-sizing: border-box; display: block; width: 100%;
         }
 
-        #editor { position: relative; background: transparent; color: transparent; caret-color: var(--primary); z-index: 2; resize: none; overflow: hidden; width: 100%; }
-        #highlight-layer { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; color: #888; }
+        #editor { position: relative; background: transparent; color: transparent; caret-color: var(--primary); z-index: 2; resize: none; overflow: hidden; min-height: 430px; }
+        #highlight-layer { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; color: #888; min-height: 430px; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button { flex: 1; padding: 14px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: var(--font); font-size: 12px; text-transform: uppercase; }
@@ -75,7 +74,7 @@
         .feat-card p { color: #888; font-size: 11px; line-height: 1.6; margin: 0; }
 
         .faq-section { width: 950px; margin-top: 40px; background: #111; border-radius: 8px; border: 1px solid #222; padding: 30px; }
-        .faq-section h2 { border: none; text-align: left; margin-bottom: 20px; font-size: 14px; }
+        .faq-section h2 { border: none; text-align: left; margin-bottom: 20px; font-size: 14px; color: #fff; letter-spacing: 4px; text-transform: uppercase; }
         .faq-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         .faq-item:last-child { border: none; margin-bottom: 0; }
         .faq-item h4 { color: #eee; margin: 0 0 8px 0; font-size: 13px; }
@@ -112,7 +111,7 @@
 
 <div class="window" id="main-window">
     <h2>LuaU Obfuscator</h2>
-    <div class="editor-wrapper" id="master-scroller">
+    <div class="editor-wrapper">
         <div class="gutter">
             <div class="line-numbers" id="line-num-gutter">1</div>
         </div>
@@ -145,6 +144,18 @@
     </div>
 </div>
 
+<div class="faq-section">
+    <h2>FREQUENTLY ASKED QUESTIONS</h2>
+    <div class="faq-item">
+        <h4>Is this safe and protect my source code?</h4>
+        <p>Yes, it will change your source code into a large code look like "What?", and safe to use with good executor</p>
+    </div>
+    <div class="faq-item">
+        <h4>Will it slow down and crash my script?</h4>
+        <p>Yes, just slow a bit but it doesn't crash if your script doesn't bug</p>
+    </div>
+</div>
+
 <footer>&copy; Created in 26/4/2026</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -174,11 +185,15 @@
         const text = editor.value;
         highlightContent.textContent = text + (text.endsWith('\n') ? ' ' : ''); 
         Prism.highlightElement(highlightContent);
+        
         const lines = text.split('\n');
         lineNumGutter.innerHTML = Array.from({length: lines.length}, (_, i) => i + 1).join('<br>');
-        editor.style.height = '0px'; 
-        editor.style.height = editor.scrollHeight + 'px';
-        document.getElementById('highlight-layer').style.height = editor.scrollHeight + 'px';
+
+        // Fix highlight logic: reset height trước khi tính lại
+        editor.style.height = 'auto';
+        const targetHeight = Math.max(430, editor.scrollHeight);
+        editor.style.height = targetHeight + 'px';
+        document.getElementById('highlight-layer').style.height = targetHeight + 'px';
     }
 
     editor.addEventListener('keydown', function(e) {
@@ -200,7 +215,7 @@
             const bytes = sourceCode.split('').map(char => char.charCodeAt(0) ^ key);
             const blockListStr = blockedExecutors.map(ex => `"${ex}"`).join(',');
 
-            // Xuất code ra chỉ một dòng duy nhất (Minified)
+            // Minified - One line template
             const template = `-- Obfuscated by tienxida112-blip local _=(function(k,d,b) local function _junk() local a="\\2\\1\\1\\3" end local name=(identifyexecutor or getexecutorname or function() return "Unknown" end)() for _,v in pairs(b) do if string.find(string.lower(name),string.lower(v)) then return warn("This executor ("..name..") is blocked.") end end local r="" for i=1,#d do r=r..string.char(bit32.bxor(d[i],k)) end local s,err=loadstring(r) if s then return s() else warn("Error: "..err) end end)(${key},{${bytes.join(',')}},{${blockListStr}})`;
 
             editor.value = template;
@@ -221,7 +236,9 @@
         document.body.removeChild(a); URL.revokeObjectURL(url);
         setStatus("Downloaded!");
     }
-    updateView();
+
+    // Khởi tạo view lần đầu
+    window.onload = updateView;
 </script>
 </body>
 </html>
