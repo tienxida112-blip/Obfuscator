@@ -94,10 +94,10 @@
         .btn-obf:hover { box-shadow: 0 0 25px var(--primary); transform: translateY(-2px); }
         .btn-setting { background: #1a1a1a; color: var(--primary); width: 60px; flex: none; border: 1px solid var(--primary); }
         .btn-copy { background: #252525; color: #eee; }
+        .btn-download { background: #1a3a2a; color: var(--primary); border: 1px solid var(--primary); } /* Nút download mới */
         .btn-clear { background: #331111; color: #ff4444; }
         #status { text-align: center; margin-top: 15px; font-size: 11px; font-weight: bold; height: 15px; }
 
-        /* --- ADDED SECTIONS CSS --- */
         .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 950px; margin-top: 30px; }
         .feat-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; transition: 0.3s; }
         .feat-card:hover { border-color: var(--primary); background: #161616; }
@@ -155,7 +155,7 @@
         <button class="btn-obf" onclick="doObfuscate()">Obfuscate Now</button>
         <button class="btn-setting" onclick="openSettings()">⚙️</button>
         <button class="btn-copy" onclick="doCopy()">Copy</button>
-        <button class="btn-clear" onclick="doReset()">Clear</button>
+        <button class="btn-download" onclick="doDownload()">Download</button> <button class="btn-clear" onclick="doReset()">Clear</button>
     </div>
     <div id="status">Waiting for response</div>
 </div>
@@ -263,6 +263,20 @@
 
     function doCopy() { navigator.clipboard.writeText(editor.value); setStatus("Copied!"); }
     function doReset() { editor.value = ""; updateView(); setStatus("Cleared!"); }
+
+    function doDownload() {
+        if (!editor.value) return;
+        const blob = new Blob([editor.value], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'obfuscated_script.lua';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus("Downloaded!");
+    }
 
     updateView();
 </script>
